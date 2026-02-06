@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ka">
+<head>
+  <meta charset="UTF-8">
+  <title>დემეტრე & ნინი 💌</title>
+  <link rel="stylesheet" href="style.css">
+
+  <!-- Firebase compat SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+<div id="login" class="card">
+  <h2>🔐 შესვლა</h2>
+  <input id="email" type="email" placeholder="Email">
+  <input id="password" type="password" placeholder="Password">
+  <button onclick="login()">შესვლა</button>
+</div>
+
+<div id="app" class="card hidden">
+  <h1>💞 ჩვენი დღიური</h1>
+
+  <textarea id="text" placeholder="დღიური..."></textarea>
+  <button onclick="saveEntry()">შენახვა</button>
+
+  <div id="entries"></div>
+
+  <button class="logout" onclick="logout()">გასვლა</button>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
