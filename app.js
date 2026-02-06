@@ -1,24 +1,35 @@
+// ========================
 // 🔥 Firebase config
+// ========================
 const firebaseConfig = {
   apiKey: "AIzaSyDsc0xVKoxXwbPA32imS_NSL5I7Bxf1ZSI",
   authDomain: "demetre-nini-diary.firebaseapp.com",
   projectId: "demetre-nini-diary",
-  storageBucket: "demetre-nini-diary.firebasestorage.app",
+  storageBucket: "demetre-nini-diary.appspot.com",
   messagingSenderId: "1079599079461",
   appId: "1:1079599079461:web:9abeb73b8e70431aa25fcc",
   measurementId: "G-PN7Q9DV19R"
 };
 
+// Initialize Firebase
 firebase.initializeApp(firebaseConfig);
-
 const auth = firebase.auth();
 const db = firebase.firestore();
 
+// ========================
+// 📝 Elements
+// ========================
 const loginDiv = document.getElementById("login");
 const appDiv = document.getElementById("app");
 const entriesDiv = document.getElementById("entries");
 
-// 🔐 auth state
+const emailInput = document.getElementById("email");
+const passwordInput = document.getElementById("password");
+const textArea = document.getElementById("text");
+
+// ========================
+// 🔐 Auth state
+// ========================
 auth.onAuthStateChanged(user => {
   if (user) {
     loginDiv.classList.add("hidden");
@@ -27,37 +38,66 @@ auth.onAuthStateChanged(user => {
   } else {
     loginDiv.classList.remove("hidden");
     appDiv.classList.add("hidden");
+    entriesDiv.innerHTML = "";
+    textArea.value = "";
   }
 });
 
-// 🔐 login
+// ========================
+// 🔐 Login
+// ========================
 function login() {
-  auth.signInWithEmailAndPassword(
-    email.value,
-    password.value
-  ).catch(err => alert(err.message));
+  const email = emailInput.value.trim();
+  const password = passwordInput.value.trim();
+
+  if (!email || !password) {
+    alert("გთხოვთ შეიყვანოთ Email და პაროლი");
+    return;
+  }
+
+  auth.signInWithEmailAndPassword(email, password)
+    .catch(err => alert("Login error: " + err.message));
 }
 
-// 🚪 logout
+// ========================
+// 🚪 Logout
+// ========================
 function logout() {
   auth.signOut();
 }
 
-// 💾 save entry
+// ========================
+// 💾 Save entry
+// ========================
 function saveEntry() {
-  const text = document.getElementById("text").value.trim();
-  if (!text) return;
+  const text = textArea.value.trim();
+
+  if (!text) {
+    alert("ტექსტი ცარიელია ✍️");
+    return;
+  }
+
+  if (!auth.currentUser) {
+    alert("გთხოვთ შეხვიდეთ საიტზე 🔐");
+    return;
+  }
 
   db.collection("entries").add({
     text: text,
     user: auth.currentUser.email,
     created: firebase.firestore.FieldValue.serverTimestamp()
+  })
+  .then(() => {
+    textArea.value = "";
+  })
+  .catch(err => {
+    alert("შენახვის შეცდომა: " + err.message);
   });
-
-  document.getElementById("text").value = "";
 }
 
-// 📜 load entries
+// ========================
+// 📜 Load entries
+// ========================
 function loadEntries() {
   db.collection("entries")
     .orderBy("created", "desc")
@@ -78,7 +118,12 @@ function loadEntries() {
     });
 }
 
-// 🗑️ delete
+// ========================
+// 🗑️ Delete entry
+// ========================
 function deleteEntry(id) {
-  db.collection("entries").doc(id).delete();
+  if (!confirm("ნამდვილად გსურთ წაშლა?")) return;
+
+  db.collection("entries").doc(id).delete()
+    .catch(err => alert("შეცდომა წაშლისას: " + err.message));
 }
